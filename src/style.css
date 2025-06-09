@@ -1,11 +1,65 @@
 * {
   margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 
-.issue {
+h1 {
+  text-align: center;
+}
+
+h2 {
+  margin: 10px 0;
+}
+
+.flex {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.issue-list {
+  align-items: start;
+}
+
+.issue {
   padding: 10px;
   border: 1px black solid;
+}
+
+.issues-detail {
+  align-items: center;
+}
+
+label {
+  display: inline-block;
+  width: 50px;
+}
+
+input,
+select,
+textarea {
+  width: 320px;
+  height: 20px;
+}
+
+textarea {
+  height: 50px;
+}
+
+form {
+  align-items: center;
+}
+
+.input-container {
+  flex-direction: row;
+  align-items: start;
+}
+
+button {
+  width: 100px;
+}
+
+.form-bottom {
+  align-items: center;
 }

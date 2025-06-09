@@ -1,32 +1,34 @@
 <template>
-  <div>
+  <div class="issues-create-edit-detail flex">
     <h1>{{ isEditing ? '이슈 수정' : isDetailMode ? '이슈 상세' : '이슈 생성' }}</h1>
 
     <!-- 상세 보기 모드 -->
-    <div v-if="isDetailMode && !isEditing">
+    <div v-if="isDetailMode && !isEditing" class="issue-detail flex">
       <h2>{{ issue.title }}</h2>
       <p><strong>설명:</strong> {{ issue.description }}</p>
       <p><strong>상태:</strong> {{ issue.status }}</p>
       <p><strong>담당자:</strong> {{ issue.user?.name || '없음' }}</p>
       <p><strong>생성일:</strong> {{ formatDate(issue.createdAt) }}</p>
 
-      <button @click="isEditing = true">수정하기</button>
-      <router-link to="/issues">목록으로 돌아가기</router-link>
+      <div class="form-bottom flex">
+        <button @click="isEditing = true">수정하기</button>
+        <router-link to="/issues">목록으로 돌아가기</router-link>
+      </div>
     </div>
 
     <!-- 생성/수정 폼 -->
-    <form v-else @submit.prevent="handleSubmit">
-      <div>
+    <form v-else @submit.prevent="handleSubmit" class="flex">
+      <div class="input-container flex">
         <label for="title">제목</label>
         <input v-model="issue.title" type="text" id="title" required />
       </div>
 
-      <div>
+      <div class="input-container flex">
         <label for="description">설명</label>
         <textarea v-model="issue.description" id="description" required></textarea>
       </div>
 
-      <div>
+      <div class="input-container flex">
         <label for="status">상태</label>
         <select v-model="issue.status" id="status" :disabled="isStatusDisabled">
           <option value="PENDING">대기</option>
@@ -36,7 +38,7 @@
         </select>
       </div>
 
-      <div>
+      <div class="input-container flex">
         <label for="assignee">담당자</label>
         <select v-model="issue.assignee" id="assignee" :disabled="isAssigneeDisabled">
           <option value="김개발">김개발</option>
@@ -45,7 +47,7 @@
         </select>
       </div>
 
-      <div>
+      <div class="form-bottom flex">
         <button type="submit">{{ isDetailMode ? '수정 완료' : '저장하기' }}</button>
         <router-link to="/issues">목록으로 돌아가기</router-link>
       </div>

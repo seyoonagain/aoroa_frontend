@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="issue-list flex">
     <h1>이슈 목록</h1>
     <button @click="createIssue">새 이슈 만들기</button>
-    <ul>
-      <li v-for="issue in issuesList" :key="issue.id" class="issue">
+    <ul class="issues flex">
+      <li v-for="issue in issuesList" :key="issue.id" class="issue flex">
         <router-link :to="`/issues/${issue.id}`">
           <h2>
             {{ issue.title }}
