@@ -12,6 +12,7 @@
           required
         />
       </div>
+
       <div>
         <label for="description">설명</label>
         <textarea
@@ -60,7 +61,6 @@ export default {
   setup() {
     const router = useRouter()
     const route = useRoute()
-
     const issuesList = ref(issues)
 
     const issue = ref({
@@ -68,11 +68,19 @@ export default {
       description: '',
       status: '',
       assignee: '',
-      createdAt: '',
     })
 
     const isEditing = ref(false)
     const formTitle = ref('이슈 생성')
+
+    const getUserIdByName = (name) => {
+      const users = [
+        { id: 1, name: '김개발' },
+        { id: 2, name: '이디자인' },
+        { id: 3, name: '박기획' },
+      ]
+      return users.find((u) => u.name === name)?.id || null
+    }
 
     onMounted(() => {
       if (route.params.id) {
@@ -80,28 +88,45 @@ export default {
         formTitle.value = '이슈 수정'
 
         const issueId = parseInt(route.params.id)
-
         const issueData = issuesList.value.find((issue) => issue.id === issueId)
 
         if (issueData) {
-          issue.value = { ...issueData }
+          issue.value = {
+            ...issueData,
+            assignee: issueData.user?.name || '',
+          }
         }
       }
     })
 
     const handleSubmit = () => {
-      const currentDate = new Date().toISOString()
+      const now = new Date().toISOString()
+      const selectedUser = {
+        id: getUserIdByName(issue.value.assignee),
+        name: issue.value.assignee,
+      }
+
+      const updatedIssue = {
+        ...issue.value,
+        user: selectedUser,
+        updatedAt: now,
+      }
+
+      delete updatedIssue.assignee
 
       if (isEditing.value) {
         const index = issuesList.value.findIndex((item) => item.id === issue.value.id)
         if (index !== -1) {
-          issuesList.value[index] = { ...issue.value }
+          issuesList.value[index] = {
+            ...issuesList.value[index],
+            ...updatedIssue,
+          }
         }
       } else {
         const newIssue = {
           id: issuesList.value.length + 1,
-          ...issue.value,
-          createdAt: currentDate,
+          ...updatedIssue,
+          createdAt: now,
         }
         issuesList.value.push(newIssue)
       }
@@ -111,7 +136,7 @@ export default {
 
     const isStatusDisabled = computed(() => {
       return (
-        issue.value.assignee === null ||
+        !issue.value.assignee ||
         issue.value.status === 'COMPLETED' ||
         issue.value.status === 'CANCELLED'
       )
