@@ -66,8 +66,9 @@ export default {
     const issue = ref({
       title: '',
       description: '',
-      status: 'PENDING',
-      assignee: '김개발',
+      status: '',
+      assignee: '',
+      createdAt: '',
     })
 
     const isEditing = ref(false)
@@ -89,6 +90,8 @@ export default {
     })
 
     const handleSubmit = () => {
+      const currentDate = new Date().toISOString()
+
       if (isEditing.value) {
         const index = issuesList.value.findIndex((item) => item.id === issue.value.id)
         if (index !== -1) {
@@ -98,6 +101,7 @@ export default {
         const newIssue = {
           id: issuesList.value.length + 1,
           ...issue.value,
+          createdAt: currentDate,
         }
         issuesList.value.push(newIssue)
       }
