@@ -1,26 +1,29 @@
 <template>
   <div>
-    <h1>{{ formTitle }}</h1>
-    <form @submit.prevent="handleSubmit">
+    <h1>{{ isEditing ? '이슈 수정' : isDetailMode ? '이슈 상세' : '이슈 생성' }}</h1>
+
+    <!-- 상세 보기 모드 -->
+    <div v-if="isDetailMode && !isEditing">
+      <h2>{{ issue.title }}</h2>
+      <p><strong>설명:</strong> {{ issue.description }}</p>
+      <p><strong>상태:</strong> {{ issue.status }}</p>
+      <p><strong>담당자:</strong> {{ issue.user?.name || '없음' }}</p>
+      <p><strong>생성일:</strong> {{ formatDate(issue.createdAt) }}</p>
+
+      <button @click="isEditing = true">수정하기</button>
+      <router-link to="/issues">목록으로 돌아가기</router-link>
+    </div>
+
+    <!-- 생성/수정 폼 -->
+    <form v-else @submit.prevent="handleSubmit">
       <div>
         <label for="title">제목</label>
-        <input
-          v-model="issue.title"
-          type="text"
-          id="title"
-          placeholder="제목을 입력하세요"
-          required
-        />
+        <input v-model="issue.title" type="text" id="title" required />
       </div>
 
       <div>
         <label for="description">설명</label>
-        <textarea
-          v-model="issue.description"
-          id="description"
-          placeholder="설명을 입력하세요"
-          required
-        ></textarea>
+        <textarea v-model="issue.description" id="description" required></textarea>
       </div>
 
       <div>
@@ -43,7 +46,7 @@
       </div>
 
       <div>
-        <button type="submit">{{ isEditing ? '수정하기' : '저장하기' }}</button>
+        <button type="submit">{{ isDetailMode ? '수정 완료' : '저장하기' }}</button>
         <router-link to="/issues">목록으로 돌아가기</router-link>
       </div>
     </form>
@@ -57,7 +60,6 @@ import { issues } from '../data/mockData'
 
 export default {
   name: 'IssueForm',
-
   setup() {
     const router = useRouter()
     const route = useRoute()
@@ -71,7 +73,7 @@ export default {
     })
 
     const isEditing = ref(false)
-    const formTitle = ref('이슈 생성')
+    const isDetailMode = ref(false)
 
     const getUserIdByName = (name) => {
       const users = [
@@ -84,12 +86,9 @@ export default {
 
     onMounted(() => {
       if (route.params.id) {
-        isEditing.value = true
-        formTitle.value = '이슈 수정'
-
+        isDetailMode.value = true
         const issueId = parseInt(route.params.id)
-        const issueData = issuesList.value.find((issue) => issue.id === issueId)
-
+        const issueData = issuesList.value.find((i) => i.id === issueId)
         if (issueData) {
           issue.value = {
             ...issueData,
@@ -114,8 +113,8 @@ export default {
 
       delete updatedIssue.assignee
 
-      if (isEditing.value) {
-        const index = issuesList.value.findIndex((item) => item.id === issue.value.id)
+      if (isDetailMode.value) {
+        const index = issuesList.value.findIndex((item) => item.id === parseInt(route.params.id))
         if (index !== -1) {
           issuesList.value[index] = {
             ...issuesList.value[index],
@@ -146,13 +145,18 @@ export default {
       return issue.value.status === 'COMPLETED' || issue.value.status === 'CANCELLED'
     })
 
+    const formatDate = (isoString) => {
+      return new Date(isoString).toLocaleString('ko-KR')
+    }
+
     return {
       issue,
-      formTitle,
       isEditing,
+      isDetailMode,
       handleSubmit,
       isStatusDisabled,
       isAssigneeDisabled,
+      formatDate,
     }
   },
 }
