@@ -30,20 +30,20 @@
 
       <div class="input-container flex">
         <label for="status">상태</label>
-        <select v-model="issue.status" id="status" :disabled="isStatusDisabled">
+        <select v-model="issue.status" id="status">
           <option value="PENDING">대기</option>
-          <option value="IN_PROGRESS">진행 중</option>
-          <option value="COMPLETED">완료</option>
-          <option value="CANCELLED">취소</option>
+          <option value="IN_PROGRESS" :disabled="!issue.user">진행 중</option>
+          <option value="COMPLETED" :disabled="!issue.user">완료</option>
+          <option value="CANCELLED" :disabled="!issue.user">취소</option>
         </select>
       </div>
 
       <div class="input-container flex">
         <label for="assignee">담당자</label>
-        <select v-model="issue.assignee" id="assignee" :disabled="isAssigneeDisabled">
-          <option value="김개발">김개발</option>
-          <option value="이디자인">이디자인</option>
-          <option value="박기획">박기획</option>
+        <select v-model="issue.user" id="assignee" :disabled="isAssigneeDisabled">
+          <option :value="{ id: 1, name: '김개발' }">김개발</option>
+          <option :value="{ id: 2, name: '이디자인' }">이디자인</option>
+          <option :value="{ id: 3, name: '박기획' }">박기획</option>
         </select>
       </div>
 
@@ -71,20 +71,11 @@ export default {
       title: '',
       description: '',
       status: '',
-      assignee: '',
+      user: null,
     })
 
     const isEditing = ref(false)
     const isDetailMode = ref(false)
-
-    const getUserIdByName = (name) => {
-      const users = [
-        { id: 1, name: '김개발' },
-        { id: 2, name: '이디자인' },
-        { id: 3, name: '박기획' },
-      ]
-      return users.find((u) => u.name === name)?.id || null
-    }
 
     onMounted(() => {
       if (route.params.id) {
@@ -94,7 +85,7 @@ export default {
         if (issueData) {
           issue.value = {
             ...issueData,
-            assignee: issueData.user?.name || '',
+            user: issueData.user || null,
           }
         }
       }
@@ -102,18 +93,11 @@ export default {
 
     const handleSubmit = () => {
       const now = new Date().toISOString()
-      const selectedUser = {
-        id: getUserIdByName(issue.value.assignee),
-        name: issue.value.assignee,
-      }
 
       const updatedIssue = {
         ...issue.value,
-        user: selectedUser,
         updatedAt: now,
       }
-
-      delete updatedIssue.assignee
 
       if (isDetailMode.value) {
         const index = issuesList.value.findIndex((item) => item.id === parseInt(route.params.id))
@@ -137,7 +121,7 @@ export default {
 
     const isStatusDisabled = computed(() => {
       return (
-        !issue.value.assignee ||
+        !issue.value.user ||
         issue.value.status === 'COMPLETED' ||
         issue.value.status === 'CANCELLED'
       )
